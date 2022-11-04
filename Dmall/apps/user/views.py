@@ -72,5 +72,10 @@ class RegisterView(View):
         # 密码加密
         user = User.objects.create_user(username=username,password=password,mobile=mobile)
 
+        from django.contrib.auth import login
+        # 状态保持 -- 登录用户的状态保持
+        # user 已经登录的用户信息
+        login(request, user)
+
         # 5. 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
