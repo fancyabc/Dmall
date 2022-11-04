@@ -41,9 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'user',
+
+    # 跨域CORS
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -157,3 +161,21 @@ SESSION_CACHE_ALIAS = "session"
 # 通过提供一个值给AUTH_USER_MODEL设置，指向自定义的模型，Django允许你覆盖默认的User模型：
 # 这个点式路径包含Django应用的名称（必须位于你的INSTALLED_APPS中），和要用作User模型的Django模型的名称。
 AUTH_USER_MODEL = 'user.User'
+
+'''
+Configure the middleware's behaviour in your Django settings. You must set at least one of three following settings:
+
+    CORS_ALLOWED_ORIGINS
+    CORS_ALLOWED_ORIGIN_REGEXES
+    CORS_ALLOW_ALL_ORIGINS
+'''
+
+# 添加白名单
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = (
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://www.Dmall.site:8080',
+)
+
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
