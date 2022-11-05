@@ -47,10 +47,26 @@ class SmsCodeView(View):
         if redis_image_code.decode().lower() != image_code.lower():
             return JsonResponse({'code': 400, 'errmsg': '图片验证码错误'})
 
+        # 提取发送短信的标记，看看有没有
+        send_flag = redis_cli.get('send_flag_%s' % mobile)
+
+        if send_flag is not None:
+            return JsonResponse({'code': 400, 'errmsg': '不要频繁发送短信'})
+
         # 生成短信验证码
         from random import randint
         sms_code = '%06d' % randint(0, 999999)
-        redis_cli.setex('sms_%s' % mobile, 300, sms_code)   # REDIS 保存短信验证码
+
+        # 管道 3步
+        # ① 新建一个管道
+        pipeline = redis_cli.pipeline()
+        # ② 将Redis请求添加到队列
+        # 保存短信验证码
+        pipeline.setex('sms_%s' % mobile, 300, sms_code)   # REDIS 保存短信验证码
+        # 添加一个发送标记.有效期 60秒 内容是什么都可以
+        pipeline.setex('send_flag_%s' % mobile, 60, 1)
+        # ③ 管道执行指令
+        pipeline.execute()
 
         from libs.yuntongxun.sms import CCP
         CCP().send_template_sms(mobile, [sms_code, 5], 1)
