@@ -7,6 +7,7 @@ from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth import login, logout, authenticate
 
+from utils.views import LoginRequiredJSONMixin
 from .models import User
 
 
@@ -157,3 +158,20 @@ class LogoutView(View):
         response = JsonResponse({'code': 0, 'errmsg': 'ok'})
         response.delete_cookie('username')  # 删除 cookie 信息
         return response
+
+
+# LoginRequiredMixin 未登录的用户 会返回 重定向。重定向并不是JSON数据
+class CenterView(LoginRequiredJSONMixin, View):
+    def get(self,request):
+        # request.user 就是 已经登录的用户信息
+        # request.user 是来源于 中间件
+        # 系统会进行判断 如果我们确实是登录用户，则可以获取到 登录用户对应的 模型实例数据
+        # 如果我们确实不是登录用户，则request.user = AnonymousUser()  匿名用户
+        info_data = {
+            'username': request.user.username,
+            'email': request.user.email,
+            'mobile': request.user.mobile,
+            'email_active': request.user.email_active,
+        }
+
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'info_data': info_data})
