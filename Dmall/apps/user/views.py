@@ -4,8 +4,10 @@ import re
 # Create your views here.
 
 from django.views import View
-from .models import User
 from django.http import JsonResponse
+from django.contrib.auth import login, logout, authenticate
+
+from .models import User
 
 
 class UsernameCountView(View):
@@ -85,7 +87,6 @@ class RegisterView(View):
         # 密码加密
         user = User.objects.create_user(username=username,password=password,mobile=mobile)
 
-        from django.contrib.auth import login
         # 状态保持 -- 登录用户的状态保持
         # user 已经登录的用户信息
         login(request, user)
@@ -123,7 +124,6 @@ class LoginView(View):
         # 方式1 我们可以通过模型根据用户名来查询
         # User.objects.get(username=username)
         # 方式2
-        from django.contrib.auth import authenticate
         # authenticate 传递用户名和密码
         # 如果用户名和密码正确，则返回 User信息
         # 如果用户名和密码不正确，则返回 None
@@ -133,7 +133,6 @@ class LoginView(View):
             return JsonResponse({'code': 400, 'errmsg': '账号或密码错误'})
 
         # 4. session
-        from django.contrib.auth import login
         login(request, user)
         # 5. 判断是否记住登录
         if remembered:
@@ -147,4 +146,14 @@ class LoginView(View):
         # 6. 返回响应
         response = JsonResponse({'code': 0, 'errmsg': 'ok'})
         response.set_cookie('username', username)
+        return response
+
+
+class LogoutView(View):
+    """退出登录"""
+    def get(self, request):
+        """实现退出登录逻辑"""
+        logout(request)     # 删除session信息
+        response = JsonResponse({'code': 0, 'errmsg': 'ok'})
+        response.delete_cookie('username')  # 删除 cookie 信息
         return response
