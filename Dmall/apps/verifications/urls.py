@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import ImageCodeView
+from .views import ImageCodeView, SmsCodeView
 
 urlpatterns = [
     path('image_codes/<uuid>/', ImageCodeView.as_view()),
+    path('sms_codes/<mobile>/', SmsCodeView.as_view()),
 ]
