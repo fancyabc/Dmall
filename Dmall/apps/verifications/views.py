@@ -19,8 +19,7 @@ class ImageCodeView(View):
 
         from django_redis import get_redis_connection
         redis_cli = get_redis_connection('code')
-
-        redis_cli.setex(uuid, 100, text)
+        redis_cli.setex('img_%s' % uuid, 100, text)  # 保存图片验证码
 
         # 因为图片是二进制 我们不能返回JSON数据
         # content_type=响应体数据类型
@@ -41,7 +40,7 @@ class SmsCodeView(View):
         from django_redis import get_redis_connection
         redis_cli = get_redis_connection('code')
 
-        redis_image_code = redis_cli.get(uuid)  # 获取redis数据
+        redis_image_code = redis_cli.get('img_%s' % uuid)  # 获取redis数据
         if redis_image_code is None:
             return JsonResponse({'code': 400, 'errmsg': '图片验证码已过期'})
 
@@ -51,7 +50,7 @@ class SmsCodeView(View):
         # 生成短信验证码
         from random import randint
         sms_code = '%06d' % randint(0, 999999)
-        redis_cli.setex(mobile, 300, sms_code)
+        redis_cli.setex('sms_%s' % mobile, 300, sms_code)   # REDIS 保存短信验证码
 
         from libs.yuntongxun.sms import CCP
         CCP().send_template_sms(mobile, [sms_code, 5], 1)
