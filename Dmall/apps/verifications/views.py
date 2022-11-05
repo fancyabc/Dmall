@@ -68,7 +68,10 @@ class SmsCodeView(View):
         # ③ 管道执行指令
         pipeline.execute()
 
-        from libs.yuntongxun.sms import CCP
-        CCP().send_template_sms(mobile, [sms_code, 5], 1)
+        # 发送短信验证码
+        # from libs.yuntongxun.sms import CCP
+        # CCP().send_template_sms(mobile, [sms_code, 5], 1)
+        from celery_tasks.sms.tasks import celery_send_sms_code
+        celery_send_sms_code.delay(mobile, sms_code)    # delay 的参数 等同于 任务（函数）的参数
 
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
