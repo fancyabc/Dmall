@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'verifications',
+    'oauth',
 
     # 跨域CORS
     'corsheaders',
