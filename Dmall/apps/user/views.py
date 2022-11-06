@@ -6,11 +6,11 @@ import re
 from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth import login, logout, authenticate
-from django.core.mail import send_mail
 
 from utils.views import LoginRequiredJSONMixin
 from .models import User
 from .utils import generic_email_verify_token, check_verify_token
+from celery_tasks.email.tasks import celery_send_email
 
 
 class UsernameCountView(View):
@@ -202,23 +202,30 @@ class EmailView(View):
         user.email = email
         user.save()
         # 4. 发送一封激活邮件
-
-        token = generic_email_verify_token(request.user.id)
-        verify_url = "http://www.Dmail.site:8080/success_verify_email.html?token=%s"%token
         # subject,      主题
         subject = '天天商城激活邮件'
         # message,      邮件内容
-        message = "abc"
-        html_message = "'<p>尊敬的用户您好！</p>' \
-                       '<p>感谢您使用天天商城。</p>' \
-                       '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' "
+        message = ""
 
         # from_email,   发件人
         from_email = '天天商城<m_fancy_ovo@163.com>'
         # recipient_list, 收件人列表
         recipient_list = ['2310403052@qq.com']
-        send_mail(subject=subject, message=message, from_email=from_email,
-                  recipient_list=recipient_list, html_message=html_message)
+        token = generic_email_verify_token(request.user.id)
+        verify_url = "http://www.Dmail.site:8080/success_verify_email.html?token=%s"%token
+
+        html_message = '<p>尊敬的用户您好！</p>' \
+                       '<p>感谢您使用天天商城。</p>' \
+                       '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
+                       '<p><a href="%s">%s<a></p>' % (email, verify_url, verify_url)
+
+        celery_send_email.delay(
+            subject=subject,
+            message=message,
+            from_email=from_email,
+            recipient_list=recipient_list,
+            html_message=html_message
+        )
 
         # 5. 返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
