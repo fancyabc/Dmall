@@ -7,6 +7,7 @@ from QQLoginTool.QQtool import OAuthQQ
 
 from Dmall import settings
 from .models import OAuthQQUser
+from .utils import generate_openid, check_access_token
 from user.models import User
 
 
@@ -54,7 +55,8 @@ class OauthQQView(View):
             qquser = OAuthQQUser.objects.get(openid=openid)
         except OAuthQQUser.DoesNotExist:
             # 5. 如果没有绑定过，则需要绑定
-            response = JsonResponse({'code': 400, 'access_token': openid})
+            access_token = generate_openid(openid)
+            response = JsonResponse({'code': 400, 'access_token': access_token})
             return response
         else:
             # 6. 如果绑定过，则直接登录
@@ -76,10 +78,11 @@ class OauthQQView(View):
         mobile = data.get('mobile')
         password = data.get('password')
         sms_code = data.get('sms_code')
-        openid = data.get('access_token')
+        access_token = data.get('access_token')
 
         # 需要对数据进行验证（省略）
 
+        openid = check_access_token(access_token)   # 对 access-token 解密
         if openid is None:
             return JsonResponse({'code': 400, 'errmsg': '参数缺失'})
 
