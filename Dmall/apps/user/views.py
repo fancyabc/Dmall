@@ -261,7 +261,7 @@ class AddressCreateView(LoginRequiredJSONMixin, View):
     def post(self, request):
         count = request.user.addresses.count()
         if count >= USER_ADDRESS_COUNTS_LIMIT:
-            return JsonResponse({'code': 404, 'errmsg': '超过地址数量上限'})  # self define your error code
+            return JsonResponse({'code': 400, 'errmsg': '超过地址数量上限'})  # self define your error code
         data = json.loads(request.body.decode())
 
         receiver = data.get('receiver')
@@ -332,3 +332,67 @@ class AddressView(LoginRequiredJSONMixin, View):
             })
         # 3.返回响应
         return JsonResponse({'code': 0, 'errmsg': 'ok', 'addresses': address_list})
+
+
+class UpdateDestroyAddressView(LoginRequiredJSONMixin, View):
+    """修改和删除地址"""
+
+    def put(self, request, address_id):
+        data = json.loads(request.body.decode())
+        receiver = data.get('receiver')
+        province_id = data.get('province_id')
+        city_id = data.get('city_id')
+        district_id = data.get('district_id')
+        place = data.get('place')
+        mobile = data.get('mobile')
+        tel = data.get('tel')
+        email = data.get('email')
+
+        '''
+        if not all([receiver, province_id, city_id, district_id, place, mobile]):
+            return JsonResponse({'code': 400, 'errmsg': '缺少必传参数'})
+        '''
+
+        if not re.match(r'^1[3-9]\d{9}$', mobile):
+            return JsonResponse({'code': 400, 'errmsg': '参数mobile有误'})
+
+        if tel:
+            if not re.match(r'^(0[0-9]{2,3}-)?([2-9][0-9]{6,7})+(-[0-9]{1,4})?$', tel):
+                return JsonResponse({'code': 400, 'errmsg': '参数tel有误'})
+        if email:
+            if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+                return JsonResponse({'code': 400, 'errmsg': '参数email有误'})
+
+        # 判断地址是否存在,并更新地址信息
+        try:
+            Address.objects.filter(id=address_id).update(
+                user=request.user,
+                title=receiver,
+                receiver=receiver,
+                province_id=province_id,
+                city_id=city_id,
+                district_id=district_id,
+                place=place,
+                mobile=mobile,
+                tel=tel,
+                email=email
+            )
+        except Exception as e:
+            # logger.error(e)
+            return JsonResponse({'code': 400, 'errmsg': '更新地址失败'})
+
+    def delete(self, request, address_id):
+        """删除地址"""
+        try:
+            # 查询要删除的地址
+            address = Address.objects.get(id=address_id)
+
+            # 将地址逻辑删除设置为True
+            address.is_deleted = True
+            address.save()
+        except Exception as e:
+            # logger.error(e)
+            return JsonResponse({'code': 400, 'errmsg': '删除地址失败'})
+
+        # 响应删除地址结果
+        return JsonResponse({'code': 0, 'errmsg': '删除地址成功'})
