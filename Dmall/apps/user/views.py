@@ -212,8 +212,7 @@ class EmailView(View):
         # recipient_list, 收件人列表
         recipient_list = ['2310403052@qq.com']
         token = generic_email_verify_token(request.user.id)
-        verify_url = "http://www.Dmail.site:8080/success_verify_email.html?token=%s"%token
-
+        verify_url = "http://www.Dmall.site:8080/success_verify_email.html?token=%s"%token
         html_message = '<p>尊敬的用户您好！</p>' \
                        '<p>感谢您使用天天商城。</p>' \
                        '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
@@ -228,4 +227,28 @@ class EmailView(View):
         )
 
         # 5. 返回响应
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
+
+
+class VerifyEmailView(View):
+    """验证邮箱后端逻辑实现"""
+    def put(self, request):
+        # 1. 接收请求
+        params = request.GET
+        # 2. 获取参数
+        token = params.get('token')
+        # 3. 验证参数
+        if token is None:
+            return JsonResponse({'code': 400, 'errmsg': '参数缺失'})
+        # 4. 获取user_id
+        from .utils import check_verify_token
+        user_id = check_verify_token(token)
+        if user_id is None:
+            return JsonResponse({'code': 400, 'errmsg': '参数错误'})
+        # 5. 根据用户id查询数据
+        user = User.objects.get(id=user_id)
+        # 6. 修改数据
+        user.email_active = True
+        user.save()
+        # 7. 返回响应JSON
         return JsonResponse({'code': 0, 'errmsg': 'ok'})

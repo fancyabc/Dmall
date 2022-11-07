@@ -38,4 +38,4 @@ def check_access_token(token):
         data.validate()  # 检测token
     except Exception:
         return None
-    return data.get(data['openid'])
+    return data.get('openid')
