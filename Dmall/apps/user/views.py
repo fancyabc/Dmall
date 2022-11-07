@@ -11,6 +11,8 @@ from utils.views import LoginRequiredJSONMixin
 from .models import User
 from .utils import generic_email_verify_token, check_verify_token
 from celery_tasks.email.tasks import celery_send_email
+from .models import Address
+from Dmall.settings import USER_ADDRESS_COUNTS_LIMIT
 
 
 class UsernameCountView(View):
@@ -252,3 +254,54 @@ class VerifyEmailView(View):
         user.save()
         # 7. 返回响应JSON
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
+
+
+class AddressCreateView(LoginRequiredJSONMixin, View):
+
+    def post(self, request):
+        count = request.user.addresses.count()
+        if count >= USER_ADDRESS_COUNTS_LIMIT:
+            return JsonResponse({'code': 404, 'errmsg': '超过地址数量上限'})  # self define your error code
+        data = json.loads(request.body.decode())
+
+        receiver = data.get('receiver')
+        province_id = data.get('province_id')
+        city_id = data.get('city_id')
+        district_id = data.get('district_id')
+        place = data.get('place')
+        mobile = data.get('mobile')
+        tel = data.get('tel')
+        email = data.get('email')
+
+        user = request.user
+
+        # 验证参数...
+
+        address = Address.objects.create(
+            user=user,
+            title=receiver,
+            receiver=receiver,
+            province_id=province_id,
+            city_id=city_id,
+            district_id=district_id,
+            place=place,
+            mobile=mobile,
+            tel=tel,
+            email=email
+        )
+
+        address_dict = {
+            'id': address.id,
+            "title": address.title,
+            "receiver": address.receiver,
+            "province": address.province.name,
+            "city": address.city.name,
+            "district": address.district.name,
+            "place": address.place,
+            "mobile": address.mobile,
+            "tel": address.tel,
+            "email": address.email
+        }
+
+        # 4.返回响应
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'address': address_dict})
