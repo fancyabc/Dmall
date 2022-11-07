@@ -2,6 +2,11 @@ from django.db import models
 
 # Create your models here.
 
+# subs = [Area,Area,Area]
+#  related_name 关联的模型的名字
+# 默认是 关联模型类名小写_set     area_set
+# 我们可以通过 related_name 修改默认是名字，现在就改为了 subs
+
 
 class Area(models.Model):
     """省市区"""
