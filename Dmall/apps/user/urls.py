@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     UsernameCountView, MobileCountView, RegisterView,
     LoginView, LogoutView, CenterView, EmailView, VerifyEmailView,
-    AddressCreateView,
+    AddressCreateView, AddressView
 )
 
 urlpatterns = [
@@ -16,4 +16,5 @@ urlpatterns = [
     path('emails/', EmailView.as_view()),
     path('emails/verification/', VerifyEmailView.as_view()),
     path('addresses/create/', AddressCreateView.as_view()),
+    path('addresses/', AddressView.as_view()),
 ]
