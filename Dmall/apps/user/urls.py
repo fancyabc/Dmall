@@ -3,7 +3,7 @@ from .views import (
     UsernameCountView, MobileCountView, RegisterView,
     LoginView, LogoutView, CenterView, EmailView, VerifyEmailView,
     AddressCreateView, AddressView, UpdateDestroyAddressView,
-    DefaultAddressView
+    DefaultAddressView, UpdateTitleAddressView
 )
 
 urlpatterns = [
@@ -20,4 +20,5 @@ urlpatterns = [
     path('addresses/', AddressView.as_view()),
     path('addresses/<address_id>/', UpdateDestroyAddressView.as_view()),
     path('addresses/<address_id>/default/', DefaultAddressView.as_view()),
+    path('addresses/<address_id>/title/', UpdateTitleAddressView.as_view()),
 ]
