@@ -3,6 +3,7 @@ from collections import OrderedDict
 from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
+from haystack.views import SearchView
 
 from contents.models import ContentCategory
 from .models import GoodsCategory, SKU
@@ -97,3 +98,32 @@ class HotGoodsView(View):
             })
 
         return JsonResponse({'code': 0, 'errmsg': 'OK', 'hot_skus': hot_skus})
+
+
+"""
+ 数据 <----------Haystack---------> elasticsearch 
+
+ 我们是借助于 haystack 来对接 elasticsearch
+ 所以 haystack 可以帮助我们 查询数据
+"""
+
+
+class SKUSearchView(SearchView):
+    def create_response(self):
+        """
+        Generates the actual HttpResponse to send back to the user.
+        """
+
+        context = self.get_context()
+        data_list = []
+        for sku in context['page'].object_list:
+            data_list.append({
+                'id': sku.object.id,
+                'name': sku.object.name,
+                'price': sku.object.price,
+                'default_image_url': sku.object.default_image.url,
+                'searchkey': context.get('query'),
+                'page_size': context['page'].paginator.num_pages,
+                'count': context['page'].paginator.count
+            })
+        return JsonResponse(data_list, safe=False)
