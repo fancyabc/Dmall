@@ -43,7 +43,11 @@ INSTALLED_APPS = [
     'user',
     'verifications',
     'oauth',
+    'areas',
+    'goods',
+    'contents',
 
+    'haystack',
     # 跨域CORS
     'corsheaders',
 ]
@@ -64,7 +68,7 @@ ROOT_URLCONF = 'Dmall.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR), 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -196,3 +200,31 @@ QQ_CLIENT_ID = '101474184'
 QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c'
 # 我们申请时添加的: 登录成功后回调的路径
 QQ_REDIRECT_URI = 'http://www.Dmall.site:8080/oauth_callback.html'
+
+
+#  配置邮件服务器
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25
+# 发送邮件的邮箱
+EMAIL_HOST_USER = 'm_fancy_ovo@163.com'
+# 在邮箱中设置的客户端授权密码
+EMAIL_HOST_PASSWORD = ''
+# 收件人看到的发件人
+EMAIL_FROM = '天天商城<m_fancy_ovo@163.com>'
+
+USER_ADDRESS_COUNTS_LIMIT = 20
+
+
+# 指定自定义的Django文件存储类
+DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.MyStorage'
+
+
+# ES的配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch2_backend.Elasticsearch2SearchEngine',
+        'URL': 'http://192.168.25.5:9200/',
+        'INDEX_NAME': 'dmall',  # 大写会出错, 'Invalid index name [Dmall], must be lowercase'
+    },
+}
