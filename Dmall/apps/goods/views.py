@@ -1,12 +1,27 @@
+
+from collections import OrderedDict
 from django.shortcuts import render
+from django.views import View
 
-# Create your views here.
-from fdfs_client.client import Fdfs_client
+from contents.models import ContentCategory
+from utils.goods import get_categories
 
-# 1. 创建客户端
-# 修改加载配置文件的路径
-client=Fdfs_client('utils/fastdfs/client.conf')
-#
-# # 2. 上传图片
-# # 图片的绝对路径
-client.upload_by_filename('/home/fan/Desktop/img/c.png')
+
+class IndexView(View):
+    """首页广告"""
+
+    def get(self, request):
+        """提供首页广告界面"""
+        # 查询商品频道和分类
+        categories = get_categories()
+
+        contents = {}
+        content_categories = ContentCategory.objects.all()
+        for cat in content_categories:
+            contents[cat.key] = cat.content_set.filter(status=True).order_by('sequence')
+        context = {
+            'categories': categories,
+            'contents': contents,
+        }
+
+        return render(request, 'index.html', context=context)
