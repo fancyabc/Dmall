@@ -7,7 +7,7 @@ from haystack.views import SearchView
 
 from contents.models import ContentCategory
 from .models import GoodsCategory, SKU
-from utils.goods import get_categories, get_breadcrumb
+from utils.goods import get_categories, get_breadcrumb, get_goods_specs
 
 
 class IndexView(View):
@@ -103,7 +103,7 @@ class HotGoodsView(View):
 """
  数据 <----------Haystack---------> elasticsearch 
 
- 我们是借助于 haystack 来对接 elasticsearch
+ 我们 借助于 haystack 来对接 elasticsearch
  所以 haystack 可以帮助我们 查询数据
 """
 
@@ -127,3 +127,41 @@ class SKUSearchView(SearchView):
                 'count': context['page'].paginator.count
             })
         return JsonResponse(data_list, safe=False)
+
+
+"""
+需求：
+    详情页面
+
+    1.分类数据
+    2.面包屑
+    3.SKU信息
+    4.规格信息
+
+    详情页面也是需要静态化实现的。
+
+"""
+
+
+class DetailView(View):
+
+    def get(self, request, sku_id):
+        try:
+            sku = SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            pass
+        # 1.分类数据
+        categories = get_categories()
+        # 2.面包屑
+        breadcrumb = get_breadcrumb(sku.category)
+        # 3.SKU信息
+        # 4.规格信息
+        goods_specs = get_goods_specs(sku)
+
+        context = {
+            'categories': categories,
+            'breadcrumb': breadcrumb,
+            'sku': sku,
+            'specs': goods_specs,
+        }
+        return render(request, 'detail.html', context)
