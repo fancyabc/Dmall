@@ -69,7 +69,7 @@ ROOT_URLCONF = 'Dmall.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR), 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -289,7 +289,7 @@ d: 一星期内的天（0~6，0为星期天）。
 
 # 元素的第二个参数是 定时任务（函数）
 """
-CRONTAB_COMMAND_PREFIX = 'cd /home/fan/PycharmProjects/Dmall/Dmall &&'
+# CRONTAB_COMMAND_PREFIX = 'cd /home/fan/PycharmProjects/Dmall/Dmall &&'
 CRONJOBS = [
     ('*/1 * * * *', 'utils.crons.generate_static_index', '>> ' + os.path.join(BASE_DIR, 'logs/crontab.log'))
 ]
