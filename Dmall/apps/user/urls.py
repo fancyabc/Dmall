@@ -3,7 +3,7 @@ from .views import (
     UsernameCountView, MobileCountView, RegisterView,
     LoginView, LogoutView, CenterView, EmailView, VerifyEmailView,
     AddressCreateView, AddressView, UpdateDestroyAddressView,
-    DefaultAddressView, UpdateTitleAddressView
+    DefaultAddressView, UpdateTitleAddressView, UserHistoryView
 )
 
 urlpatterns = [
@@ -21,4 +21,6 @@ urlpatterns = [
     path('addresses/<address_id>/', UpdateDestroyAddressView.as_view()),
     path('addresses/<address_id>/default/', DefaultAddressView.as_view()),
     path('addresses/<address_id>/title/', UpdateTitleAddressView.as_view()),
+
+    path('browse_histories/', UserHistoryView.as_view()),
 ]

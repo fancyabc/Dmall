@@ -7,13 +7,14 @@ from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth import login, logout, authenticate
 
+from django_redis import get_redis_connection
+
 from utils.views import LoginRequiredJSONMixin
-from .models import User
+from .models import User, Address
 from .utils import generic_email_verify_token, check_verify_token
 from celery_tasks.email.tasks import celery_send_email
-from .models import Address
 from Dmall.settings import USER_ADDRESS_COUNTS_LIMIT
-
+from goods.models import SKU
 
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
@@ -440,3 +441,88 @@ class UpdateTitleAddressView(LoginRequiredJSONMixin, View):
 
         # 4.响应删除地址结果
         return JsonResponse({'code': 0, 'errmsg': '设置地址标题成功'})
+
+
+"""
+添加浏览记录
+    前端：
+            当登录用户，访问某一个具体SKU页面的时候，发送一个axios请求。 请求携带 sku_id
+    后端：
+         请求：        接收请求，获取请求参数，验证参数
+         业务逻辑；    连接redis，先去重，在保存到redsi中，只保存5条记录
+         响应：        返回JSON
+
+        路由：     POST        browse_histories 
+        步骤：
+            1. 接收请求
+            2. 获取请求参数
+            3. 验证参数
+            4. 连接redis    list
+            5. 去重
+            6. 保存到redsi中
+            7. 只保存5条记录
+            8. 返回JSON
+展示浏览记录
+     前端：
+           用户在访问浏览记录的时候，发送axios请求。 请求会携带session信息
+    后端：
+         请求：         
+         业务逻辑；    连接redis,获取redis数据（[1,2,3]）.根据商品id进行数据查询，将对象转换为字典
+         响应：        JSON
+
+        路由：    GET  
+        步骤：
+            1. 连接redis
+            2. 获取redis数据（[1,2,3]）
+            3. 根据商品id进行数据查询
+            4. 将对象转换为字典
+            5. 返回JSON
+"""
+
+
+class UserHistoryView(LoginRequiredJSONMixin,View):
+
+    def post(self,request):
+        user=request.user
+
+        # 1. 接收请求
+        data=json.loads(request.body.decode())
+        # 2. 获取请求参数
+        sku_id=data.get('sku_id')
+        # 3. 验证参数
+        try:
+            sku=SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return JsonResponse({'code':400,'errmsg':'没有此商品'})
+        # 4. 连接redis    list
+        redis_cli=get_redis_connection('history')
+        # 5. 去重(先删除 这个商品id 数据，再添加就可以了)
+        redis_cli.lrem('history_%s'%user.id,0,sku_id)
+        # 6. 保存到redsi中
+        redis_cli.lpush('history_%s'%user.id,sku_id)
+        # 7. 只保存5条记录
+        redis_cli.ltrim("history_%s"%user.id,0,4)
+        # 8. 返回JSON
+        return JsonResponse({'code':0,'errmsg':'ok'})
+
+
+    def get(self,request):
+        # 1. 连接redis
+        redis_cli=get_redis_connection('history')
+        # 2. 获取redis数据（[1,2,3]）
+        ids=redis_cli.lrange('history_%s'%request.user.id,0,4)
+        # [1,2,3]
+        # 3. 根据商品id进行数据查询
+        history_list=[]
+        for sku_id in ids:
+            sku=SKU.objects.get(id=sku_id)
+            # 4. 将对象转换为字典
+            history_list.append({
+                'id':sku.id,
+                'name':sku.name,
+                'default_image_url': sku.default_image.url,
+                'price': sku.price
+            })
+
+        # 5. 返回JSON
+        return JsonResponse({'code':0,'errmsg':'ok','skus':history_list})
