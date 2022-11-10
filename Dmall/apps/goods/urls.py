@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
-   IndexView, ListView, HotGoodsView, SKUSearchView, DetailView
+   IndexView, ListView, HotGoodsView, SKUSearchView, DetailView,
+   CategoryVisitCountView,
 )
 
 urlpatterns = [
@@ -10,4 +11,5 @@ urlpatterns = [
     path('search/', SKUSearchView()),   # 注意 没有as_view()
 
     path('detail/<sku_id>/', DetailView.as_view()),
+    path('detail/visit/<category_id>/', CategoryVisitCountView.as_view()),
 ]

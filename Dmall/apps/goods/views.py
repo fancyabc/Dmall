@@ -1,4 +1,4 @@
-
+from datetime import date
 from collections import OrderedDict
 from django.shortcuts import render
 from django.views import View
@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from haystack.views import SearchView
 
 from contents.models import ContentCategory
-from .models import GoodsCategory, SKU
+from .models import GoodsCategory, SKU, GoodsVisitCount
 from utils.goods import get_categories, get_breadcrumb, get_goods_specs
 
 
@@ -165,3 +165,45 @@ class DetailView(View):
             'specs': goods_specs,
         }
         return render(request, 'detail.html', context)
+
+
+"""
+需求：
+    统计每一天的分类商品访问量
+
+前端：
+    当访问具体页面的时候，会发送一个axios请求。携带分类id
+后端：
+    请求：         接收请求，获取参数
+    业务逻辑：       查询有没有，有的话更新数据，没有新建数据
+    响应：         返回JSON
+
+    路由：     POST    detail/visit/<category_id>/
+    步骤：
+
+        1.接收分类id
+        2.验证参数（验证分类id）
+        3.查询当天 这个分类的记录有没有
+        4. 没有新建数据
+        5. 有的话更新数据
+        6. 返回响应
+"""
+
+
+class CategoryVisitCountView(View):
+
+    def post(self, request, category_id):
+        try:
+            category = GoodsCategory.objects.get(id=category_id)
+        except GoodsCategory.DoesNotExist:
+            return JsonResponse({'code': 400, 'errmsg': '没有此分类'})
+        today = date.today()
+        try:
+            gvc = GoodsVisitCount.objects.get(category=category, date=today)
+        except GoodsVisitCount.DoesNotExist:
+            GoodsVisitCount.objects.create(category=category, date=today, count=1)
+        else:
+            gvc.count += 1
+            gvc.save()
+
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
