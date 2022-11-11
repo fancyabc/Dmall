@@ -100,10 +100,10 @@ class CartsView(View):
         if user.is_authenticated:
             redis_conn = get_redis_connection('carts')
             sku_id_counts = redis_conn.hgetall('carts_%s' % user.id)
-            selected_ids = redis_conn.smember('selected_%s' % user.id)
+            selected_ids = redis_conn.smembers('selected_%s' % user.id)
             carts = {}
 
-            for sku_id, count in sku_id_counts:
+            for sku_id, count in sku_id_counts.items():
                 carts[int(sku_id)] = {
                     'count': int(count),
                     'selected': sku_id in selected_ids
@@ -184,3 +184,42 @@ class CartsView(View):
         response.set_cookie('carts', new_carts.decode(), max_age=24*3600)
 
         return response
+
+    def delete(self, request):
+
+        data = json.loads(request.body.decode())
+        sku_id = data.get('sku_id')
+        try:
+            SKU.objects.get(pk=sku_id)  # pk primary key
+        except SKU.DoesNotExist:
+            return JsonResponse({'code': 400, 'errmsg': '没有此商品'})
+
+        user = request.user
+        if user.is_authenticated:
+
+            # 4.登录用户操作redis
+            redis_cli = get_redis_connection('carts')
+            redis_cli.hdel('carts_%s' % user.id, sku_id)
+            redis_cli.srem('selected_%s' % user.id, sku_id)
+
+            return JsonResponse({'code': 0, 'errmsg': 'ok'})
+
+        else:
+            # 未登录用户操作cookie
+            cookie_cart = request.COOKIES.get('carts')
+            #     判断数据是否存在
+            if cookie_cart is not None:
+                #     存在则解码
+                carts = pickle.loads(base64.b64decode(cookie_cart))
+            else:
+                #     不存在则初始化字典
+                carts = {}
+            #     删除数据 {}
+            del carts[sku_id]
+            #     我们需要对字典数据进行编码和base64的处理
+            new_carts = base64.b64encode(pickle.dumps(carts))
+            #     设置cookie
+            response = JsonResponse({'code': 0, 'errmsg': 'ok'})
+            response.set_cookie('carts', new_carts.decode(), max_age=24*3600)
+
+            return response
