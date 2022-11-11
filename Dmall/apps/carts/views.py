@@ -57,10 +57,13 @@ class CartsView(View):
             # 4.登录用户保存redis
             #    4.1 连接redis
             redis_cli = get_redis_connection('carts')
+            pipeline = redis_cli.pipeline()
             #    4.2 操作hash
-            redis_cli.hset('carts_%s' % user.id, sku_id, count)  # (key, field, value)
+            # redis_cli.hset('carts_%s' % user.id, sku_id, count)  # (key, field, value)
+            pipeline.hincrby('carts_%s' % user.id, sku_id, count)
             #    4.3 操作set
-            redis_cli.sadd('selected_%s' % user.id, sku_id)  # 默认是选中
+            pipeline.sadd('selected_%s' % user.id, sku_id)  # 默认是选中
+            pipeline.execute()
             #    4.4 返回响应
             return JsonResponse({'code': 0, 'errmsg': 'ok'})
         # 5.未登录用户保存cookie
@@ -156,11 +159,13 @@ class CartsView(View):
 
         if user.is_authenticated:
             redis_cli = get_redis_connection('carts')
-            redis_cli.hset('carts_%s' % user.id, sku_id, count)
+            pipeline = redis_cli.pipeline()
+            pipeline.hset('carts_%s' % user.id, sku_id, count)
             if selected:
-                redis_cli.sadd('selected_%s' % user.id, sku_id)
+                pipeline.sadd('selected_%s' % user.id, sku_id)
             else:
-                redis_cli.srem('selected_%s' % user.id, sku_id)
+                pipeline.srem('selected_%s' % user.id, sku_id)
+            pipeline.execute()
 
             return JsonResponse({'code': 0, 'errmsg': 'ok',
                                  'cart_sku': {'count': count, 'selected': selected}})
@@ -199,8 +204,10 @@ class CartsView(View):
 
             # 4.登录用户操作redis
             redis_cli = get_redis_connection('carts')
-            redis_cli.hdel('carts_%s' % user.id, sku_id)
-            redis_cli.srem('selected_%s' % user.id, sku_id)
+            pipeline = redis_cli.pipeline()
+            pipeline.hdel('carts_%s' % user.id, sku_id)
+            pipeline.srem('selected_%s' % user.id, sku_id)
+            pipeline.execute()
 
             return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
