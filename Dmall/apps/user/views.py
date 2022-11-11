@@ -15,6 +15,7 @@ from .utils import generic_email_verify_token, check_verify_token
 from celery_tasks.email.tasks import celery_send_email
 from Dmall.settings import USER_ADDRESS_COUNTS_LIMIT
 from goods.models import SKU
+from carts.utils import merge_cart_cookie_to_redis
 
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
@@ -152,6 +153,8 @@ class LoginView(View):
         # 6. 返回响应
         response = JsonResponse({'code': 0, 'errmsg': 'ok'})
         response.set_cookie('username', username)
+        # 登录后 ,将cookie购物车数据合并到Redis购物车数据中
+        response = merge_cart_cookie_to_redis(request, user, response)
         return response
 
 
