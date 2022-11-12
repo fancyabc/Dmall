@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import OrderSettlementView
+from .views import OrderSettlementView, OrderCommitView
 urlpatterns = [
     path('orders/settlement/', OrderSettlementView.as_view()),
-
+    path('orders/commit/', OrderCommitView.as_view()),
 ]
