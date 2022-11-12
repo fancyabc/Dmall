@@ -1,5 +1,6 @@
 from decimal import Decimal
 import json
+from time import sleep
 from datetime import datetime
 
 from django.views import View
@@ -138,29 +139,46 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                     carts[int(sku_id)] = int(sku_id_counts[sku_id])
 
                 for sku_id, count in carts.items():
+                    # try to run 5 times if 记录修改 fail
+                    for i in range(5):
+                        sku = SKU.objects.get(id=sku_id)
+                        # 判断库存是否充足
+                        if sku.stock < count:
+                            # 回滚点
+                            transaction.savepoint_rollback(point)
+                            return JsonResponse({'code': 400, 'errmsg': '库存不足'})
+                        # # 如果充足，则库存减少，销量增加
+                        # sku.stock -= count
+                        # sku.sales += count
+                        # sku.save()
 
-                    sku = SKU.objects.get(id=sku_id)
-                    # 判断库存是否充足
-                    if sku.stock < count:
-                        # 回滚点
-                        transaction.savepoint_rollback(point)
-                        return JsonResponse({'code': 400, 'errmsg': '库存不足'})
-                    # 如果充足，则库存减少，销量增加
-                    sku.stock -= count
-                    sku.sales += count
-                    sku.save()
+                        # 读取原始库存
+                        origin_stock = sku.stock
 
-                    # 累加总数量和总金额
-                    order_info.total_count += count
-                    order_info.total_amount += (count * sku.price)
+                        # 我更新的时候，再比对一下这个记录对不对
+                        new_stock = sku.stock-count
+                        new_sales = sku.sales+count
 
-                    # 保存订单商品信息
-                    OrderGoods.objects.create(
-                        order=order_info,
-                        sku=sku,
-                        count=count,
-                        price=sku.price
-                    )
+                        # result = 1 表示 有1条记录修改成功
+                        # result = 0 表示 没有更新
+                        result = SKU.objects.filter(id=sku_id, stock=origin_stock).update(stock=new_stock, sales=new_sales)
+
+                        if result == 0:
+                            sleep(0.005)
+                            continue
+
+                        # 累加总数量和总金额
+                        order_info.total_count += count
+                        order_info.total_amount += (count * sku.price)
+
+                        # 保存订单商品信息
+                        OrderGoods.objects.create(
+                            order=order_info,
+                            sku=sku,
+                            count=count,
+                            price=sku.price
+                        )
+                        break
                 # 添加邮费
                 order_info.total_amount += order_info.freight
                 # 更新订单的总金额和总数量
@@ -171,6 +189,9 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
             # 提交点
             transaction.savepoint_commit(point)
 
-
-        # 4 将redis中选中的商品信息移除出去 （暂缓）
+        # 4 将redis中选中的商品信息移除出去
+        pl = redis_cli.pipeline()
+        pl.hdel('carts_%s' % user.id, *selected_ids)
+        pl.srem('selected_%s' % user.id, *selected_ids)
+        pl.execute()
         return JsonResponse({'code': 0, 'errmsg': 'ok', 'order_id': order_id})
