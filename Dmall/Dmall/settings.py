@@ -201,11 +201,14 @@ Configure the middleware's behaviour in your Django settings. You must set at le
 '''
 
 # 添加白名单
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = (
-    'http://127.0.0.1:8080',
-    'http://localhost:8080',
-    'http://www.Dmall.site:8080',
+    "http://127.0.0.1:8080",
+    "http://localhost:8080",
+    "http://127.0.0.1:8090",
+    "http://localhost:8090",
+    "http://www.dmall.site:8080",   # 此处设置的域名大小写敏感
+    "http://www.dmall.site:8090",
 )
 
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
