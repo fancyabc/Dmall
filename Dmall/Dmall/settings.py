@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'contents',
     'carts',
     'orders',
+    'dmall_admin',
 
     'haystack',
     'django_crontab',  # 定时任务
@@ -312,3 +313,17 @@ d: 一星期内的天（0~6，0为星期天）。
 CRONJOBS = [
     ('*/1 * * * *', 'utils.crons.generate_static_index', '>> ' + os.path.join(BASE_DIR, 'logs/crontab.log'))
 ]
+
+
+# ------------------------ django-rest-framework-simplejwt -----------------------------
+REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    # 认证类. 先进行token的验证. 如果没有携带token,就进行session认证.如果session也没有携带就基本认证
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
