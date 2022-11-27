@@ -327,3 +327,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+from datetime import timedelta
+
+# JWT配置 里面具体配置可以参考文档
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # 配置过期时间
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
+}
