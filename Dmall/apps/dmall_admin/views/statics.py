@@ -15,3 +15,11 @@ class DailyActiveAPIView(APIView):
         return Response({'count': count})
 
 
+class DailyOrderCountAPIView(APIView):
+    """日下单用户量统计"""
+    def get(self, request):
+        today = date.today()
+        count = User.objects.filter(orderinfo__create_time__gte=today).count()
+        return Response({'count': count})
+
+
