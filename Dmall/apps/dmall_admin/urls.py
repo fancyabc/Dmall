@@ -4,6 +4,7 @@ from django.urls import path
 
 from .views.admintokenview import dmall_token
 from .views.statics import *
+from .views.user import *
 
 urlpatterns = [
     path('authorizations/', dmall_token),
@@ -13,5 +14,7 @@ urlpatterns = [
     path('statistical/total_count/', UserTotalCountAPIView.as_view()),
 
     path('statistical/month_increment/', MonthCountAPIView.as_view()),
+
+    path('users/', UserAPIView.as_view()),
 ]
 
