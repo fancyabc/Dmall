@@ -15,12 +15,12 @@
         3. 最后实现分页
 """
 from collections import OrderedDict
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from user.models import User
 from ..serializers.user import UserModelSerializer
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
-
+from rest_framework.mixins import CreateModelMixin
 
 class PageNum(PageNumberPagination):
     # 1.开启分页
@@ -43,7 +43,7 @@ class PageNum(PageNumberPagination):
         ]))
 
 
-class UserAPIView(ListAPIView):
+class UserAPIView(ListCreateAPIView):
     # 设置方法  def get_queryset(self): 根据  不同的业务逻辑返回不同的查询结果集
     def get_queryset(self):
         keyword = self.request.query_params.get('keyword')
