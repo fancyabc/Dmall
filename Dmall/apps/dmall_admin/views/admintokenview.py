@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
-from .serializers import AdminJsonWebTokenSerializer
+from ..serializers.serializers import AdminJsonWebTokenSerializer
 
 
 class AdminJsonWebTokenView(TokenObtainPairView):
