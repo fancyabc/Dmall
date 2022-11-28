@@ -64,3 +64,27 @@ class MonthCountAPIView(APIView):
             })
 
         return Response(data)
+
+
+class UserTotalCountAPIView(APIView):
+    """用户总量统计"""
+    def get(self, request):
+        # 获取当前日期
+        now_date = date.today()
+        count = User.objects.all().count()
+        return Response({
+            'count': count,
+            'date': now_date})
+
+
+# class UserDailyActiveCountView(APIView):
+#
+#     def get(self,request):
+#         # 获取当前日期
+#         now_date = date.today()
+#         # 获取活跃用户总数
+#         count = User.objects.filter(last_login__gte=now_date).count()
+#         return Response({
+#             'count': count,
+#             'date': now_date
+#         })
