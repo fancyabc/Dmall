@@ -18,5 +18,13 @@ class MyStorage(Storage):
         """用于保存文件"""
         pass
 
+    def exists(self, name):
+        """
+        判断图片是否存在
+        Fdfs 自己可以实现 图片重名的处理
+        返回False 说明图片不存在,就直接上传就可以
+        """
+        return False
+
     def url(self, name):
         return "http://192.168.25.5:8888/" + name
