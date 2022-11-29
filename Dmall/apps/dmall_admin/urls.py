@@ -7,6 +7,7 @@ from .views.admintokenview import dmall_token
 from .views.statics import *
 from .views.user import *
 from .views.images import *
+from .views.sku import *
 
 urlpatterns = [
     path('authorizations/', dmall_token),
@@ -28,4 +29,10 @@ router = DefaultRouter()
 # 2. 设置路由
 router.register('skus/images', ImageModelViewSet, basename='images')
 # 3.追加到 urlpatterns
+urlpatterns += router.urls
+
+
+# -------- sku
+
+router.register(r'skus', SKUModelViewSet, basename='skus')
 urlpatterns += router.urls
