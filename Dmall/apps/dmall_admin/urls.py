@@ -26,6 +26,8 @@ urlpatterns = [
 
     # sku 中获取 spu的数据
     path('goods/simple/', SPUListAPIView.as_view()),
+    # sku 中获取 spu的规格和规格选项
+    path('goods/<spu_id>/specs/', SPUSpecAPIView.as_view()),
 ]
 
 
