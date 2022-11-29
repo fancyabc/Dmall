@@ -23,6 +23,9 @@ urlpatterns = [
     path('skus/simple/', ImageSKUAPIView.as_view()),
 
     path('skus/categories/', GoodsCategoryAPIView.as_view()),
+
+    # sku 中获取 spu的数据
+    path('goods/simple/', SPUListAPIView.as_view()),
 ]
 
 
