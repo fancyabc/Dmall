@@ -18,3 +18,17 @@ class SKUModelViewSet(ModelViewSet):
     serializer_class = SKUModelSerializer
 
     pagination_class = PageNum
+
+
+# --------------- 三级分类数据 -----------------------
+
+from goods.models import GoodsCategory
+from rest_framework.generics import ListAPIView
+from ..serializers.sku import GoodsCategoryModelSerializer
+
+
+class GoodsCategoryAPIView(ListAPIView):
+
+    queryset = GoodsCategory.objects.filter(subs=None)
+
+    serializer_class = GoodsCategoryModelSerializer

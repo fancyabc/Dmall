@@ -21,6 +21,8 @@ urlpatterns = [
     path('users/', UserAPIView.as_view()),
     # 获取图片新增中的 sku展示
     path('skus/simple/', ImageSKUAPIView.as_view()),
+
+    path('skus/categories/', GoodsCategoryAPIView.as_view()),
 ]
 
 
