@@ -40,3 +40,14 @@ class GroupModelViewSet(ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupModelSerializer
     pagination_class = PageNum
+
+
+# ----------------------组管理--权限列表展示---------------
+from rest_framework.generics import ListAPIView
+from django.contrib.auth.models import Permission
+
+
+class GroupPermissionListAPIView(ListAPIView):
+
+    queryset = Permission.objects.all()
+    serializer_class = PermissionModelSerializer

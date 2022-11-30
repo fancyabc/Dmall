@@ -8,7 +8,10 @@ from .views.statics import *
 from .views.user import *
 from .views.images import *
 from .views.sku import *
-from .views.permissions import PermissionModelViewSet, ContentTypeListAPIView, GroupModelViewSet
+from .views.permissions import (
+    PermissionModelViewSet, ContentTypeListAPIView, GroupModelViewSet,
+    GroupPermissionListAPIView
+)
 
 urlpatterns = [
     path('authorizations/', dmall_token),
@@ -32,6 +35,9 @@ urlpatterns = [
 
     # 权限中 获取 ContentType 的数据
     path('permission/content_types/', ContentTypeListAPIView.as_view()),
+
+    # 组中 获取 权限列表数据
+    path('permission/simple/', GroupPermissionListAPIView.as_view()),
 ]
 
 
