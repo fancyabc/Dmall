@@ -72,7 +72,18 @@ class SKUModelSerializer(ModelSerializer):
         # 我们想要获取 specs 有至少2种方法
         # 1. 添加 specs 字段
         # 2. 通过 断点我们发现  self.context['request'] 可以获取 当前的请求对象.
-        pass
+        # 保存 sku和 sku规格.规格选项
+
+        # 1. 把 规格和规格选项 单独获取出来
+        specs = validated_data.pop('specs')
+        # 2. 先保存sku数据
+        sku = SKU.objects.create(**validated_data)
+        # 3. 对规格和规格选项进行遍历保存
+        for spec in specs:
+            # spec = {spec_id: "4", option_id: 8}
+            SKUSpecification.objects.create(sku=sku, **spec)
+
+        return sku
 
 
 class GoodsCategoryModelSerializer(ModelSerializer):
