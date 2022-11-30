@@ -76,12 +76,21 @@ class SKUModelSerializer(ModelSerializer):
 
         # 1. 把 规格和规格选项 单独获取出来
         specs = validated_data.pop('specs')
-        # 2. 先保存sku数据
-        sku = SKU.objects.create(**validated_data)
-        # 3. 对规格和规格选项进行遍历保存
-        for spec in specs:
-            # spec = {spec_id: "4", option_id: 8}
-            SKUSpecification.objects.create(sku=sku, **spec)
+        from django.db import transaction
+
+        with transaction.atomic():
+            save_point = transaction.savepoint()
+            try:
+                # 2. 先保存sku数据
+                sku = SKU.objects.create(**validated_data)
+                # 3. 对规格和规格选项进行遍历保存
+                for spec in specs:
+                    # spec = {spec_id: "4", option_id: 8}
+                    SKUSpecification.objects.create(sku=sku, **spec)
+            except Exception:
+                transaction.savepoint_rollback(save_point)
+            else:
+                transaction.savepoint_commit(save_point)
 
         return sku
 
