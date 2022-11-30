@@ -8,6 +8,7 @@ from .views.statics import *
 from .views.user import *
 from .views.images import *
 from .views.sku import *
+from .views.permissions import PermissionModelViewSet, ContentTypeListAPIView
 
 urlpatterns = [
     path('authorizations/', dmall_token),
@@ -28,6 +29,9 @@ urlpatterns = [
     path('goods/simple/', SPUListAPIView.as_view()),
     # sku 中获取 spu的规格和规格选项
     path('goods/<spu_id>/specs/', SPUSpecAPIView.as_view()),
+
+    # 权限中 获取 ContentType 的数据
+    path('permission/content_types/', ContentTypeListAPIView.as_view()),
 ]
 
 
@@ -36,10 +40,13 @@ router = DefaultRouter()
 # 2. 设置路由
 router.register('skus/images', ImageModelViewSet, basename='images')
 # 3.追加到 urlpatterns
-urlpatterns += router.urls
 
 
 # -------- sku
 
-router.register(r'skus', SKUModelViewSet, basename='skus')
+router.register('skus', SKUModelViewSet, basename='skus')
+
+
+# ---- 权限
+router.register('permission/perms', PermissionModelViewSet, basename='perms')
 urlpatterns += router.urls
