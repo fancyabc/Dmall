@@ -51,3 +51,14 @@ class GroupPermissionListAPIView(ListAPIView):
 
     queryset = Permission.objects.all()
     serializer_class = PermissionModelSerializer
+
+
+# --------------------管理员管理--------
+from ..serializers.permissions import AdminUserModelSerializer
+from user.models import User
+
+
+class AdminUserModelViewSet(ModelViewSet):
+    queryset = User.objects.filter(is_staff=True)
+    serializer_class = AdminUserModelSerializer
+    pagination_class = PageNum

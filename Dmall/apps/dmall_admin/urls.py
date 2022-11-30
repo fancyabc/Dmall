@@ -10,7 +10,7 @@ from .views.images import *
 from .views.sku import *
 from .views.permissions import (
     PermissionModelViewSet, ContentTypeListAPIView, GroupModelViewSet,
-    GroupPermissionListAPIView
+    GroupPermissionListAPIView, AdminUserModelViewSet
 )
 
 urlpatterns = [
@@ -58,5 +58,8 @@ router.register('permission/perms', PermissionModelViewSet, basename='perms')
 
 # -----组
 router.register('permission/groups', GroupModelViewSet, basename='groups')
+
+# ---- 普通管理员
+router.register('permission/admins', AdminUserModelViewSet, basename='admins')
 
 urlpatterns += router.urls

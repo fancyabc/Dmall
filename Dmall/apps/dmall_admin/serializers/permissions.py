@@ -22,3 +22,13 @@ class GroupModelSerializer(ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
+
+
+# ____________________ 普通管理员序列化器 _______________
+from user.models import User
+
+
+class AdminUserModelSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'mobile', 'email']
