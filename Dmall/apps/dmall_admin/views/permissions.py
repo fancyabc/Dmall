@@ -28,3 +28,15 @@ class ContentTypeListAPIView(ListAPIView):
 
     queryset = ContentType.objects.all().order_by('id')
     serializer_class = ContentTypeModelSerializer
+
+
+# _____________________  组管理 ____________________________
+from django.contrib.auth.models import Group
+from ..serializers.permissions import GroupModelSerializer
+
+
+class GroupModelViewSet(ModelViewSet):
+
+    queryset = Group.objects.all()
+    serializer_class = GroupModelSerializer
+    pagination_class = PageNum

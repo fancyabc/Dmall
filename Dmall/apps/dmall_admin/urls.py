@@ -8,7 +8,7 @@ from .views.statics import *
 from .views.user import *
 from .views.images import *
 from .views.sku import *
-from .views.permissions import PermissionModelViewSet, ContentTypeListAPIView
+from .views.permissions import PermissionModelViewSet, ContentTypeListAPIView, GroupModelViewSet
 
 urlpatterns = [
     path('authorizations/', dmall_token),
@@ -49,4 +49,8 @@ router.register('skus', SKUModelViewSet, basename='skus')
 
 # ---- 权限
 router.register('permission/perms', PermissionModelViewSet, basename='perms')
+
+# -----组
+router.register('permission/groups', GroupModelViewSet, basename='groups')
+
 urlpatterns += router.urls
