@@ -94,6 +94,26 @@ class SKUModelSerializer(ModelSerializer):
 
         return sku
 
+    def update(self, instance, validated_data):
+
+        # 1. pop 规格和规格选项数据 (把内层字典数据 pop出来)
+        specs = validated_data.pop('specs')
+        # 2. 更新 sku数据
+        # ① super() 调用父类的 update来实现数据的更新
+        super().update(instance, validated_data)
+
+        # ②
+        # for attr, value in validated_data.items():
+        #     setattr(instance, attr, value)
+        # instance.save()
+
+        #3. 更新规格和规格选项
+        for spec in specs:
+            #  spec = {spec_id: "4", option_id: 8}
+            SKUSpecification.objects.filter(sku=instance, spec_id=spec.get('spec_id')).update(option_id=spec.get('option_id'))
+
+        return instance
+
 
 class GoodsCategoryModelSerializer(ModelSerializer):
 
