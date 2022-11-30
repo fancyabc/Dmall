@@ -98,6 +98,7 @@ class SKU(BaseModel):
     comments = models.IntegerField(default=0, verbose_name='评价数')
     is_launched = models.BooleanField(default=True, verbose_name='是否上架销售')
     default_image = models.ImageField(max_length=200, default='', null=True, blank=True, verbose_name='默认图片')
+    # specs = [SKUSpecification,SKUSpecification...]
 
     class Meta:
         db_table = 'tb_sku'
