@@ -10,7 +10,7 @@ from .views.images import *
 from .views.sku import *
 from .views.permissions import (
     PermissionModelViewSet, ContentTypeListAPIView, GroupModelViewSet,
-    GroupPermissionListAPIView, AdminUserModelViewSet
+    GroupPermissionListAPIView, AdminUserModelViewSet, SimpleGroupListAPIView
 )
 
 urlpatterns = [
@@ -38,6 +38,8 @@ urlpatterns = [
 
     # 组中 获取 权限列表数据
     path('permission/simple/', GroupPermissionListAPIView.as_view()),
+    # 组中 获取 权限列表数据
+    path('permission/groups/simple/', SimpleGroupListAPIView.as_view()),
 ]
 
 
