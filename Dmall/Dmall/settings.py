@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'carts',
     'orders',
     'dmall_admin',
+    # 'rest_framework_simplejwt',
 
     'haystack',
     'django_crontab',  # 定时任务
@@ -323,8 +324,8 @@ REST_FRAMEWORK = {
     # 认证类. 先进行token的验证. 如果没有携带token,就进行session认证.如果session也没有携带就基本认证
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
     ),
 }
 

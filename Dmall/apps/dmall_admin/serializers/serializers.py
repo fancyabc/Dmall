@@ -26,7 +26,7 @@ class AdminJsonWebTokenSerializer(TokenObtainPairSerializer):
         """
         token = super().get_token(user)
         # 添加个人信息
-        token['name'] = user.username
+        # token['name'] = user.username
         return token
 
     def validate(self, attrs):
@@ -69,7 +69,7 @@ class AdminJsonWebTokenSerializer(TokenObtainPairSerializer):
 
                 # 获取Token对象
                 refresh = self.get_token(user)
-                data["refresh"] = str(refresh)
+                # data["refresh"] = str(refresh)
                 # 加个token的键，值和access键一样
                 data['token'] = str(refresh.access_token)
                 # 令牌到期时间

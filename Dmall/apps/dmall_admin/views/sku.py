@@ -1,5 +1,6 @@
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAdminUser, DjangoModelPermissions
 
 from goods.models import SKU
 from ..serializers.sku import SKUModelSerializer
@@ -18,6 +19,11 @@ class SKUModelViewSet(ModelViewSet):
     serializer_class = SKUModelSerializer
 
     pagination_class = PageNum
+
+    # 添加权限
+    # IsAdminUser 登录或者查看
+    # DjangoModelPermissions 对于模型权限的验证
+    permission_classes = [IsAdminUser, DjangoModelPermissions]
 
 
 # --------------- 三级分类数据 -----------------------
